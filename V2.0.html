@@ -1,0 +1,176 @@
+<!----------------- Try to keep all lines shorter or exactly 100 characters wide. ----------------->
+<!-- 
+CTRL+SHIFT+K:
+CTRL+SHIFT+I:
+
+dn.editor.setTheme("ace/theme/pastel_on_dark"); 
+dn.editor.session.setFoldStyle("markbeginend");
+
+-->
+<html><head>
+<style>
+
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700&subset=latin,greek,latin-ext);
+body{
+    	font-family		        : 'Ubuntu Mono';
+		background-color	    :          #555;
+		-webkit-touch-callout	:          none;
+		-webkit-user-select  	:          none;
+		 -khtml-user-select  	:          none;
+		   -moz-user-select  	:          none;
+		    -ms-user-select  	:          none;
+		     -o-user-select	    :          none;
+		        user-select		:          none;
+		}
+h3{
+	color: green;
+		}
+h3 a{
+	text-decoration: none;
+	color: lime !important;
+		}
+h3 a:hover{
+	text-decoration: none;
+	color: yellow !important;
+		}
+#box{
+    position:  absolute;
+    
+    top     :   000px !important ;
+    right   :   000px !important ;
+    width   :   100%  !important ;
+    height  :   100%  !important ;
+
+}            
+</style>
+<link rel="icon" href="../fav.png" type="image/png" />
+<title></title>
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/three.min.js"        ></script>
+<script src="js/misc.js"             ></script>
+<script src="js/snipets.js"             ></script>
+<script type='text/JavaScript'>
+var nGame = new Game();
+nGame.settings = {
+    // CSS selectors seems to be the nices way to pass DOM-Elements:
+	"frame"				:	"#box",
+	"versionLocation"	:	"title, .versionText",
+	"debug"				:	true,
+}
+
+window.onload=(function(){
+	console.log("window loaded");
+	nGame.init();
+	console.log(nGame);
+});
+
+
+function Game(){
+    var VERSION = 2.0;
+	var box;
+	this .cam;
+	
+	this.init = function(){
+		$(this.settings.versionLocation).text("B&P V"+VERSION);
+		var tmp;
+		box = $(this.settings.frame);
+		var ratio = box.width()/box.height();
+
+		var scene = new THREE.Scene();
+		var renderer = new THREE.WebGLRenderer({canvas: box[0], antialias:true});
+		renderer.setSize(box.width(), box.height());
+		
+		var cam = new THREE.PerspectiveCamera( 60, ratio, 0.1, 100 );
+		cam.position.set(0,0,5);
+		if(this.settings.debug){
+			scene.add(new THREE.AxisHelper(2));
+		}// X red | y green | z blue
+		
+		//--//--//--//--//--//
+		//  SCENE BUILDING  //
+		//--//--//--//--//--//
+		
+		function terrain(u,v){
+			var h=0;
+			var scale = 10;
+			h = Math.random()*.05-0.02;
+			var res = new THREE.Vector3(.5-u,h,-.5+v);
+			return res.multiplyScalar(scale);
+		}
+		
+		
+		var terrainGeometry = new THREE.ParametricGeometry(terrain,50,50);;
+		tmp = new THREE.MeshLambertMaterial({
+			color: 0x800000
+		});
+		var terrainMesh = new THREE.Mesh( terrainGeometry, tmp );
+		scene.add(terrainMesh);
+		
+		function waterLevel(u,v){
+			var h=0
+			var scale = 10;
+			//h = Math.cos(80*u+90*v)*u*.1;
+			h = u *.02
+			var res = new THREE.Vector3(.5-u,h,-.5+v);
+			return res.multiplyScalar(scale);
+		}
+		
+		var ocean= new THREE.ParametricGeometry(waterLevel,50,50);;
+		
+		var water = new THREE.MeshLambertMaterial({
+			color: 0x0000ff
+		});
+		
+		var oceanMesh = new THREE.Mesh(ocean,water);
+		scene.add(oceanMesh);
+		
+		
+		
+		var pointLight = new THREE.PointLight( 0x0);
+		pointLight.position.set(1,2,1);
+		scene.add( pointLight );
+
+		var sphereSize = 1;
+		var pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
+		scene.add( pointLightHelper );	
+		
+		var ambientLight = new THREE.AmbientLight( 0x111111 );
+		scene.add(ambientLight)
+		
+		scene.fog=new THREE.Fog("black", 3, 7);
+		
+		
+		var render = function () {
+			t = getTime();
+			requestAnimationFrame( render );
+			var rot = new THREE.Euler(0,t,0,'XYZ');
+			var pos = new THREE.Vector3(5,4,0);
+			pos.applyEuler(rot).setLength(5);
+			//console.log(pos);
+			
+			cam.position.set(pos.x, pos.y, pos.z);
+			var zero = new THREE.Vector3(0,0,0);
+			cam.lookAt( scene.position);
+
+			
+			renderer.render(scene, cam);
+		};
+		render();  
+		this .cam = cam;
+	}
+}
+
+
+
+</script>
+</head><body>
+	<h3>
+		<a href="main.html" title="back">&#9664;</a>
+		<span id="title"></span>
+	</h3>
+	<p></p>
+	<hr>
+	<!-- Hauptfenster-->
+	<canvas id="box"></canvas>
+    
+</body></html>
