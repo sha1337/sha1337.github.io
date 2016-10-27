@@ -1,0 +1,122 @@
+<html><head>
+<style>
+body,input{
+	font-family     : "Calibri";
+	background-color: #333  !important;
+	color           : #fff;
+	font-size: 20px;
+}
+a{
+	font-size: 3em;
+	color: #fff !important;
+	text-decoration: none;
+}
+
+hr{
+	border-color: #fff;
+	border-style: double;
+	border-width: 4px 0;
+	height: 10px;
+}
+
+a:hover{
+	background-color: #fff !important;
+	           color: #000 !important;
+}
+
+a,input{
+	background-color: #666  !important;
+	color           : #fff;
+	border    : solid #000 2px;
+	border-radius: 0.4em;
+	text-align: center;
+	width: 4em;
+	padding: 0 .5em;
+	margin : 0 .2em;
+}
+
+#box{
+	border: solid red 2px;
+	
+}
+</style>
+<title></title>
+<script type='text/JavaScript'>
+	function recalc(){
+		console.clear()
+		
+		var IDs = ["xSize","xGrid","ySize","yGrid"];
+		var DOMEle = IDs.map(x=>document.getElementById(x));
+		var values = DOMEle.map(x=>+x.value);
+		
+		// Mark bad values:
+		DOMEle.forEach(
+			function(d,i){
+				d.style.backgroundColor="#fff";
+				if(isNaN(values[i]))
+				d.style.backgroundColor="#ddd";
+			}
+		)
+		
+		// Stop processing if at least one value is bad:
+		if(values.some(x=>isNaN(x) )){
+			return;
+		}
+		
+		// Splitting by dimension:
+		var size = [values[0],values[2]];
+		var grid = [values[1],values[3]];
+		
+		var sub = new Array(2); // the grid[i] subintervalls for the dimension i.
+		for(var dim in [0,1]){
+			var p = Array(grid[dim]).fill(0);
+			p = p.map(
+				function(e,i){
+					return Math.round((i+1)*size[dim]/grid[dim]);
+				});
+			
+			var k = p.slice();
+			p.unshift(0);
+			k[-1]=0;
+			
+			k = k.map(
+				function(e,i,a){
+					return a[i]-a[i-1];
+				});
+			sub[dim]= p;
+		}
+		
+		var b = document.getElementById("box");
+		b.width  = size[0];
+		b.height = size[1];
+		b = b.getContext("2d");
+		b.fillStyle="#777";
+		b.fillRect(0,0,size[0],size[1]);
+
+		for(var i = 0; i<grid[0];i++){
+			b.fillStyle = "rgba(0,0,0,"+(i%2)/2+")";
+			b.fillRect(sub[0][i],0, sub[0][i+1]-sub[0][i], size[1]);
+		}
+		for(var i = 0; i<grid[1];i++){
+			b.fillStyle = "rgba(0,0,0,"+(i%2)/2+")";
+			b.fillRect(0,sub[1][i], size[0], sub[1][i+1]-sub[1][i]);
+		}
+		
+		document.getElementById("view").href     = document.getElementById("box").toDataURL();
+		document.getElementById("save").href     = document.getElementById("box").toDataURL();
+		document.getElementById("save").download = "grid_"+grid[0]+"x"+grid[1]+".png"
+	}
+</script>
+</head><body onload="recalc()">
+	<h3>
+		<span id="title"></span>
+	</h3>
+	<p>
+	<table>
+		<tr><td>Image Size:</td> <td><input id="xSize" value="100" onkeyup="recalc()" >&times;<input id="ySize" value="10" onkeyup="recalc()" ></td><td rowspan="2" id ="btn"><a id="save" >Save</a><a id="view" >View</a></td></tr>
+		<tr><td>Grid:</td> <td><input id="xGrid" value="5" onkeyup="recalc()" >&times;<input id="yGrid" value="11" onkeyup="recalc()" ></td></tr>
+	</table>
+	</p>
+	<hr>
+	<canvas id="box"></canvas>
+</body></html>
