@@ -1,0 +1,130 @@
+<html><head>
+<style>
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+body,input,button{
+	font-family		: 'Open Sans', sans-serif;
+	background-color: #333  !important;
+	color           : #fff;
+	font-size		: 20px;
+}
+a{
+	font-size		: 3em;
+	color			: #fff !important;
+	text-decoration	: none;
+}
+
+hr{
+	border-color: #fff;
+	border-style: double;
+	border-width: 4px 0;
+	height		: 10px;
+}
+
+a:hover{
+	background-color: #fff !important;
+	           color: #000 !important;
+}
+
+a,input{
+	background-color: #666  !important;
+	color           : #fff;
+	border   		: solid #000 2px;
+	border-radius	: 0.4em;
+	text-align		: center;
+	width			: 4em;
+	margin 			: 0 .2em;
+	padding			: 0 .5em;
+}
+
+#box{
+	border: solid #c00 2px;
+	
+}
+button{
+	background-color: #666  !important;
+	color           : #fff;
+	border    		: solid #000 2px;
+	border-radius	: 0.4em;
+	text-align		: center;
+	
+	margin : 0 .2em;
+	padding: 0 .5em;
+}
+#i{
+	border: solid #0c0 2px;
+}
+
+</style>
+<title></title>
+<script type='text/JavaScript'>
+	function recalc(){
+		console.clear()
+		
+		var IDs = ["xSize","ySize","prob"];
+		var DOMEle = IDs.map(x=>document.getElementById(x));
+		var values = DOMEle.map(x=>+x.value);
+		
+		// Mark bad values:
+		DOMEle.forEach(
+			function(d,i){
+				d.style.backgroundColor="#fff";
+				if(isNaN(values[i]))
+				d.style.backgroundColor="#ddd";
+			}
+		)
+		
+		// Stop processing if at least one value is bad:
+		if(values.some(x=>isNaN(x) )){
+			return;
+		}
+		
+		// Splitting by dimension:
+		var size = [values[0],values[1]];
+		var prob = values[2];
+		
+		var b = document.getElementById("box");
+		b.width  = size[0];
+		b.height = size[1];
+		b = b.getContext("2d");
+		
+		b.fillStyle="#fff";
+		b.fillRect(0,0,size[0],size[1]);
+		
+		b.fillStyle = "#000";
+		for(var i = 0; i<size[0];i++){
+		for(var j = 0; j<size[1];j++){
+			if(Math.random() < prob){
+				b.fillRect(i,j,1,1);
+			}
+		}
+		}
+		
+		var dataURL = document.getElementById("box").toDataURL();
+		document.getElementById("i"   ).src		= dataURL;
+		document.getElementById("view").href	= dataURL;
+		document.getElementById("save").href	= dataURL;
+		document.getElementById("save").download= "noise__"+(prob*100)+"%__"+size[0]+"x"+size[1]+".png";
+		
+	}
+</script>
+</head><body onload="recalc()">
+	<h3>
+		<span id="title"></span>
+	</h3>
+	<p>
+	<table>
+		<tr><td>Image Size:</td>
+			<td><input id="xSize" value="200" onchange="recalc()" >&times;<input id="ySize" value="200" onchange="recalc()" ></td>
+			<td rowspan="2" id ="btn"><a id="save" >Save</a><a id="view" >View</a></td>
+			<td rowspan="2" ><img height=70  id="i"></td>
+		</tr>
+		<tr>
+			<td>Probability:</td>
+			<td><input id="prob" value="0.4" onchange="recalc()" ><button onclick="recalc()">Generate</button></td>
+		</tr>
+	</table>
+	</p>
+	<hr>
+	<canvas id="box"></canvas>
+</body></html>

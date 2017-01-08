@@ -1,0 +1,80 @@
+﻿<html>
+<head>
+<title>Mini-Timer</title>
+<style>
+body,input{
+	font-family			: "Calibri";
+	background-color	: #333  !important;
+	color				: #fff;
+	font-size			: 20px;
+	text-align			: center;
+}
+
+#hold{
+	position			: fixed;
+	top					: calc(50% - 150px);
+	height				: 300px;
+	left				: calc(50% - 150px);
+	width				: 300px;
+	text-align			: center;
+	border				: 2px solid white;
+	background-color	: #222;
+	line-height			: 300px;
+	
+}
+#hold:hover{
+	border				: black solid 2px;
+	background-color	: #666
+}
+
+</style>
+<script type='text/JavaScript'>
+var running = false;
+var d = 0;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function timestamp(){    // timestamp in seconds since 1970-01-01 00:00:00 UTC.
+	//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTime
+	var now = (new Date()).getTime()/1000;
+	return now;
+};
+/* Usage:
+ * startTime = timestamp();
+ * additionalCode();
+ * renderTime = timestamp()-startTime;
+ */
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function go(){
+	console.log("go");
+	running = true;
+	d = timestamp();
+}
+function stop(){
+	console.log("stop");
+	if (running){
+		running = false;
+		var a = timestamp()-d;
+		document.getElementById("hold").innerText = a;
+	}
+}
+
+
+
+</script>
+</head>
+<body>
+<div 
+	id = "hold"
+	onmousedown	="go()"
+	onmouseout	="stop()"
+	onmouseup	="stop()"
+	
+>
+
+</div>
+
+
+
+</body>
+</html>
